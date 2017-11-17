@@ -19,6 +19,13 @@ class Users {
   getUser (id) {
     return this.users.filter((user) => user.id === id)[0];
   }
+  getUserByName (name) {
+    var userArray = this.users.filter((user) => user.name === name);
+        if (userArray) {
+      return userArray[0];
+    }
+    console.log('No such user found.')
+  }
   getUserList (room) {
     var users = this.users.filter((user) => user.room === room);
     var namesArray = users.map((user) => user.name);

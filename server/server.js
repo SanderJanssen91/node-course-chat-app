@@ -39,7 +39,32 @@ io.on('connection', (socket) => {
     var user = users.getUser(socket.id);
 
     if (user && isRealString(message.text)) {
-      io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+      message.text = message.text.trim();
+      if (user.name === 'Sander' && message.text.substr(0, message.text.indexOf(" ")) === 'Sander') {
+        var arr = message.text.toString().split(" ");
+        console.log(arr);
+        var command = arr[1];
+        var name = arr[2];
+        var user = users.getUserByName(name);
+
+        if(user){
+          if(command === 'kick') {
+            var user = users.removeUser(user.id);
+
+            io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+            io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has been kicked.`));
+            io.sockets.connected[user.id].disconnect();
+          }
+          if(command === 'cn' || command === 'changeName') {
+            var newName = arr[3];
+            user.name = newName;
+            io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+            io.to(user.room).emit('newMessage', generateMessage('Admin', `${name} has changed his/her name to ${newName}.`));
+          }
+        }
+      } else {
+          io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+        }
     }
     callback();
   });
